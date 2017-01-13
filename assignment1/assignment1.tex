@@ -1,0 +1,31 @@
+\documentclass[12pt]{article}
+\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
+\usepackage{tikz}
+ \usepackage{verbatim}
+
+\begin{document}
+
+\begin{center}
+{\Large CS224N Winter 2016 Homework [1]}
+
+\begin{tabular}{rl}
+SUNet ID: & [06074217] \\
+Name: & [Jiajun Sun] \\
+\end{tabular}
+\end{center}
+
+By turning in this assignment, I agree by the Stanford honor code and declare
+that all of this is my own work.
+
+\section*{Problem 1}
+\begin{enumerate}[label=(\alph*)]
+The proof is shown as follow:
+    \begin{equation*}
+    	softmax(x+c)_i=\frac{e^{x_i+c}}{\sum_j e^{x_j+c}}=\frac{e^{x_i}e^c}{\sum_j e^{x_j}e^c}=\frac{e^{x_i}}{\sum_j e^{x_j}}=softmax(x)
+    \end{equation*}
+
+\end{enumerate}
+
+
+
+\end{document}
