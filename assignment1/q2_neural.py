@@ -27,7 +27,7 @@ def forward_backward_prop(data, labels, params, dimensions):
     ofs = 0
     Dx, H, Dy = (dimensions[0], dimensions[1], dimensions[2])
 
-    W1 = np.reshape(params[ofs:ofs+ Dx * H], (Dx, H))
+    W1 = np.reshape(params[ofs:ofs + Dx * H], (Dx, H))
     ofs += Dx * H
     b1 = np.reshape(params[ofs:ofs + H], (1, H))
     ofs += H
@@ -35,12 +35,28 @@ def forward_backward_prop(data, labels, params, dimensions):
     ofs += H * Dy
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
-    ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
+    ### YOUR CODE HERE: forward pass
+    h = sigmoid(data.dot(W1) + b1)               # M H
+    y = softmax(h.dot(W2) + b2)                  # M Dy
+    cost = - np.sum(labels * np.log(y))          # M 1
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
-    raise NotImplementedError
+    # first back propagate through cross entropy
+    delta = y - labels                           # M Dy
+    djdh = delta.dot(W2.T)                       # M H
+    djdW2 = h.T.dot(delta)                       # H Dy
+    djdb2 = np.sum(delta, axis=0)                # Dy
+
+    # third back propagate at sigmoid
+    # dhdW1 = data.T.dot(sigmoid_grad(h))
+    dhdb1 = sigmoid_grad(h)                      # M H
+
+    # now backprop all the way up
+    gradW1 = data.T.dot(sigmoid_grad(h) * djdh)  # Dx H
+    gradb1 = np.sum(djdh * dhdb1, axis=0)        # H
+    gradW2 = djdW2                               # H Dy
+    gradb2 = djdb2                               # Dy
     ### END YOUR CODE
 
     ### Stack gradients (do not modify)

@@ -1,4 +1,4 @@
-\documentclass[12pt]{article}
+\documentclass[10pt]{article}
 \usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
 \usepackage{tikz}
  \usepackage{verbatim}
@@ -19,6 +19,7 @@ that all of this is my own work.
 
 \section*{Problem 1}
 \begin{enumerate}[label=(\alph*)]
+\item
 The proof is shown as follow:
     \begin{equation*}
     	softmax(x+c)_i=\frac{e^{x_i+c}}{\sum_j e^{x_j+c}}=\frac{e^{x_i}e^c}{\sum_j e^{x_j}e^c}=\frac{e^{x_i}}{\sum_j e^{x_j}}=softmax(x)
@@ -26,6 +27,154 @@ The proof is shown as follow:
 
 \end{enumerate}
 
+\section*{Problem 2}
+\begin{enumerate}[label=(\alph*)]
+\item
+The gradient of sigmoid function
+\begin{equation*}
+	\frac{\partial\sigma(x)}{\partial x} = \frac{1}{(1+e^{-x})^2}e^{-x} = \sigma(x)^2(\frac{1}{\sigma(x)}-1) = \sigma(x) - \sigma(x)^2
+\end{equation*}
+\item
+The gradient of cross entropy loss function
+\begin{equation*}
+	\frac{\partial CE(y,\hat{y})}{\partial\theta} = -\sum_{i}y_{i}\frac{softmax(\theta)'}{\hat{y_{i}}} = -\sum_{i}y_{i}\frac{softmax(\theta)_i'}{softmax(\theta)_i}
+\end{equation*}
+Consider only the k-th element of $y$ is one:
+\begin{equation*}
+	\frac{\partial CE(y,\hat{y})}{\partial\theta} = - \frac{softmax(\mathbf{\theta})_k'}{\hat{y}_k}
+\end{equation*}
+Where,
+\begin{equation*}
+	\begin{aligned}
+	softmax(\mathbf{\theta})_k' & = \frac{\partial softmax(\mathbf{\theta})_k}{\partial\theta_i} = \frac{\partial}{\partial\theta_i}\frac{e^{\theta_{k}}}{\sum_{j}e^{\theta_j}}\\
+					 & = \frac{\frac{\partial e^{\theta_k}}{\partial \theta_i}}{\sum_{j}e^{\theta_j}} - e^{\theta_i}\frac{e^{\theta_k}}{(\sum_{j}e^{\theta_j})^2}\\
+					 & = \frac{\mathbf{y}e^{\theta_k}}{\sum_{j}e^{\theta_j}} - \frac{e^{\mathbf{\theta}}e^{\theta_k}}{(\sum_{j}e^{\theta_j})^2}\\
+					 & = \hat{y}_k(\mathbf{y}-\mathbf{\hat{y}})
+	\end{aligned}
+\end{equation*}
+Therefore,
+\begin{equation*}
+	\frac{\partial CE(y,\hat{y})}{\partial\theta} = \mathbf{\hat{y}} - \mathbf{y}
+\end{equation*}
+\item
+Use back propogation, 
+\begin{equation*}
+	\frac{\partial J}{\partial \mathbf{x}} = \frac{\partial J}{\partial \mathbf{\hat{y}}}\frac{\partial \mathbf{\hat{y}}}{\partial \mathbf{h}}\frac{{\partial \mathbf{h}}}{\partial \mathbf{x}}
+\end{equation*}
+first calculate gradient of first two:
+\begin{equation*}
+	\frac{\partial J}{\partial \mathbf{\hat{y}}}\frac{\partial \mathbf{\hat{y}}}{\partial \mathbf{h}} = \frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \mathbf{h}} = (\mathbf{\hat{y}} - \mathbf{y})\mathbf{W_2}^T
+\end{equation*}
+Then calculate the gradient of the hidden layer:
+\begin{equation*}
+	\frac{\partial \sigma(\mathbf{xW_1}+\mathbf{b_1})}{\partial \mathbf{x}} = \sigma(\mathbf{xW_1}+\mathbf{b_1}))(1-\sigma(\mathbf{xW_1}+\mathbf{b_1})))\mathbf{W_1}^T
+\end{equation*}
+By combining them together we got:
+\begin{equation*}
+\begin{aligned}
+	\frac{\partial J}{\partial \mathbf{x}} & = [(\mathbf{\hat{y}} - \mathbf{y})\mathbf{W_2}^T][\sigma(\mathbf{xW_1}+\mathbf{b_1}))(1-\sigma(\mathbf{xW_1}+\mathbf{b_1}))]\mathbf{W_1}^T\\
+\end{aligned}
+\end{equation*}
 
+\item
+There are parameters stored in $\mathbf{W_1}$, $\mathbf{W_2}$, $\mathbf{b_1}$, $\mathbf{b_2}$.\\
+\\
+$\mathbf{W_1}$ has dimension $D_x \times H$\\
+$\mathbf{W_2}$ has dimension $D_y \times H$\\
+$\mathbf{b_1}$ has dimension $1 \times H$\\
+$\mathbf{b_2}$ has dimension $1 \times D_y$\\
+\\ 
+Therefore, there are $H(D_y+D_x)+D_y+H$ parameters in this neural network.
+\end{enumerate}
+
+\section*{Problem 3}
+\begin{enumerate}[label=(\alph*)]
+\item
+First denote:
+\begin{equation*}
+	Z = u^{T}\nu_c
+\end{equation*}
+Use chain rule to derive the gradient:
+\begin{equation*}
+	\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \nu_c} = \sum_{i}\sum_{j}\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \mathbf{\hat{y}}_i}\frac{\partial \mathbf{\hat{y}}_i}{\partial Z_j}\frac{\partial Z_j}{\partial \nu_c}
+\end{equation*}
+The result should has the same dimension as $\nu_c$ which is $W$. Assume word $o$ is the expected word, therefore, only when index $i = o$ the gradient is not zero:
+\begin{equation*}
+	\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \nu_c} = \sum_{j}\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \mathbf{\hat{y}}_o}\frac{\partial \mathbf{\hat{y}}_o}{\partial Z_j}\frac{\partial Z_j}{\partial \nu_c}
+\end{equation*}
+From problem 2 we know:
+\begin{equation*}
+	\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \mathbf{\hat{y}}_o}\frac{\partial \mathbf{\hat{y}}_o}{\partial Z_j} = (y_j - \hat{y}_j) = (\mathbf{1}[j=o] - \hat{y}_j)
+\end{equation*}
+And it is easy to find:
+\begin{equation*}
+	\frac{\partial Z_j}{\partial \nu_c} = \mathbf{u}_j
+\end{equation*}
+Therefore, combine them together:
+\begin{equation*}
+	\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \nu_c} = \sum_j(\mathbf{1}[j=o] - \hat{y}_j)\mathbf{u}_j
+\end{equation*}
+
+\item
+Use chian rule to derive the gradient:
+\begin{equation*}
+	\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial u_w} = \sum_{i}\sum_{j}\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \mathbf{\hat{y}}_i}\frac{\partial \mathbf{\hat{y}}_i}{\partial Z_j}\frac{\partial Z_j}{\partial u_w}
+\end{equation*}
+It is easy to find that index $i=o$ and $j=w$ the gradient is not zero:
+\begin{equation*}
+	\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial u_w} = \frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \mathbf{\hat{y}}_i}\frac{\partial \mathbf{\hat{y}}_i}{\partial Z_w}\frac{\partial Z_w}{\partial u_w}
+\end{equation*}
+\begin{equation*}
+	\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial \mathbf{\hat{y}}_o}\frac{\partial \mathbf{\hat{y}}_o}{\partial Z_w} = (y_w - \hat{y}_w) = (\mathbf{1}[w=o] - \hat{y}_w)
+\end{equation*}
+
+\begin{equation*}
+	\frac{\partial Z_w}{\partial u_w} = \nu_c
+\end{equation*}
+Therefore, combine them together:
+\begin{equation*}
+	\frac{\partial CE(\mathbf{y}, \mathbf{\hat{y}})}{\partial u_w} = (\mathbf{1}[w=o] - \hat{y}_w)\nu_c
+\end{equation*}
+
+\item
+Gradient for $\nu_c$:
+\begin{equation*}
+\begin{aligned}
+	\frac{\partial J}{\partial \nu_c} & = -\frac{\frac{\partial \sigma(u_o^T\nu_c)}{\partial \nu_c}}{\sigma(u_o^T\nu_c)} - \sum_k \frac{\frac{\partial \sigma(-u_k^T\nu_c)}{\partial \nu_c}}{\sigma(-u_k^T\nu_c)}\\
+	& = -\frac{\sigma(u_o^T\nu_c)(1-\sigma(u_o^T\nu_c))u_o}{\sigma(u_o^T\nu_c)} - \sum_k \frac{\sigma(-u_k^T\nu_c)(1-\sigma(-u_k^T\nu_c))(-u_k)}{\sigma(-u_k^T\nu_c)}\\
+	& = (\sigma(u_o^T\nu_c)-1)u_o + \sum_k(1-\sigma(-u_k^T\nu_c))u_k
+\end{aligned}
+\end{equation*}
+
+Gradient for $u_w$:
+
+\begin{equation*}
+\begin{aligned}
+	\frac{\partial J}{\partial u_w} & = -\frac{\frac{\partial \sigma(u_o^T\nu_c)}{\partial u_w}}{\sigma(u_o^T\nu_c)} - \sum_k \frac{\frac{\partial \sigma(-u_k^T\nu_c)}{\partial u_w}}{\sigma(-u_k^T\nu_c)}\\
+	& = -\mathbf{1}[o=w]\frac{\sigma(u_o^T\nu_c)(1-\sigma(u_o^T\nu_c))u_o}{\sigma(u_o^T\nu_c)} - \frac{\sigma(-u_w^T\nu_c)(1-\sigma(-u_w^T\nu_c))(-\nu_c)}{\sigma(-u_w^T\nu_c)}\\
+	& = \mathbf{1}[o=w](\sigma(u_o^T\nu_c)-1)\nu_c + (1-\sigma(-u_w^T\nu_c))\nu_c
+\end{aligned}
+\end{equation*}
+
+\item
+Skip-gram:
+\begin{equation*}
+\begin{aligned}
+	\frac{\partial J_{skip-gram}(word_{c-m...c+m})}{\partial w_{k}} & = \sum_{-m\le j\le m, j\neq0} \frac{\partial F(w_{c+j}, \nu_c)}{\partial w_{k}}\\
+	& = \sum_{-m\le j\le m, j\neq0}(\mathbf{1}[c+j=k] - \hat{y}_{c+j})\nu_c
+\end{aligned}
+\end{equation*}
+
+CBOW:
+\begin{equation*}
+\begin{aligned}
+	\frac{\partial J_{CBOW}(word_{c-m...c+m})}{\partial w_{c+j}} & = \frac{\partial F(w_{c}, \hat{\nu})}{\partial w_{c+j}}\\
+	& = (\mathbf{1}[c+j=o] - \hat{y}_{c+j})\nu_c
+\end{aligned}
+\end{equation*}
+
+
+\end{enumerate}
 
 \end{document}
+

@@ -35,7 +35,8 @@ def softmax(x):
         c = c.reshape((c.shape[0], 1))
         s = np.sum(np.exp(x - c), axis=1)
         s = s.reshape((s.shape[0], 1))
-        x = np.exp(x - c) / np.sum(np.exp(x - c), axis=1)
+        nominator = np.sum(np.exp(x - c), axis=1).reshape((c.shape[0], 1))
+        x = np.exp(x - c) / nominator
         ### END YOUR CODE
     else:
         # Vector

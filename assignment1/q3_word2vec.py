@@ -15,7 +15,7 @@ def normalizeRows(x):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    x = x / (np.sum(x**2, axis=1)**(1./2)).reshape(x.shape[0], 1)
     ### END YOUR CODE
 
     return x
@@ -58,11 +58,21 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    # forward
+    h = outputVectors.dot(predicted)             # M 1
+    y = softmax(h)                               # M 1
+    cost = - np.log(y[target])                   # 1
+    length = predicted.shape[0]                  # H
+
+    # backward
+    delta = y
+    delta[target] = delta[target] - 1            # M 1
+
+    gradPred = outputVectors.T.dot(delta)                                                        # H 1
+    grad = predicted.reshape((length, 1)).dot(delta.reshape((1, delta.shape[0])))                # H M
     ### END YOUR CODE
 
     return cost, gradPred, grad
-
 
 def getNegativeSamples(target, dataset, K):
     """ Samples K indexes which are not the target """
@@ -95,10 +105,22 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     indices = [target]
     indices.extend(getNegativeSamples(target, dataset, K))
 
-    ### YOUR CODE HERE
-    raise NotImplementedError
-    ### END YOUR CODE
+    # ### YOUR CODE HERE
+    # # forward
+    cost = - np.log(sigmoid(predicted.dot(outputVectors[target,:].T)))
+    - np.sum(np.log(sigmoid(predicted.dot(outputVectors.T))))
 
+    # # backward
+    label = np.zeros(predicted.shape)
+    label[target] = 1
+
+    grad = label * (sigmoid(outputVectors[target].dot(predicted)) - 1) * predicted
+    + predicted * (1 - sigmoid( - predicted.dot(outputVectors.T)))
+
+    gradPred = outputVectors[target,:] * (sigmoid(outputVectors[target].dot(predicted)) - 1)
+    + outputVectors.T.dot(1 - sigmoid( - predicted.dot(outputVectors.T)))
+
+    # ### END YOUR CODE
     return cost, gradPred, grad
 
 
@@ -131,7 +153,17 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    target = tokens[currentWord]
+    predicted = inputVectors[target,:]
+
+    for contextWord in contextWords:
+        idx = tokens[contextWord]
+        c, gradPred, grad = softmaxCostAndGradient(predicted, tokens[contextWord], outputVectors, dataset)
+        cost += c
+
+        gradIn[target, :] += gradPred.T
+        gradOut += grad.T
+
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
