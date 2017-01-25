@@ -107,12 +107,9 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
 
     ### YOUR CODE HERE
     # forward
-    u0 = outputVectors[target,:]
     selected_output_vector = outputVectors[indices]
-
     labels = np.array([-1 for _ in range(K+1)])
     labels[0] = 1
-
     h = sigmoid(labels * np.dot(selected_output_vector, predicted))
     cost = - np.sum(np.log(h))
 
