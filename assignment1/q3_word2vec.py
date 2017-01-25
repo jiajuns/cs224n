@@ -105,23 +105,26 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     indices = [target]
     indices.extend(getNegativeSamples(target, dataset, K))
 
-    # ### YOUR CODE HERE
-    # # forward
-    cost = - np.log(sigmoid(predicted.dot(outputVectors[target,:].T)))
-    - np.sum(np.log(sigmoid(predicted.dot(outputVectors.T))))
+    ### YOUR CODE HERE
+    # forward
+    u0 = outputVectors[target,:]
+    selected_output_vector = outputVectors[indices]
 
-    # # backward
-    label = np.zeros(predicted.shape)
-    label[target] = 1
+    labels = np.array([-1 for _ in range(K+1)])
+    labels[0] = 1
 
-    grad = label * (sigmoid(outputVectors[target].dot(predicted)) - 1) * predicted
-    + predicted * (1 - sigmoid( - predicted.dot(outputVectors.T)))
+    h = sigmoid(labels * np.dot(selected_output_vector, predicted))
+    cost = - np.sum(np.log(h))
 
-    gradPred = outputVectors[target,:] * (sigmoid(outputVectors[target].dot(predicted)) - 1)
-    + outputVectors.T.dot(1 - sigmoid( - predicted.dot(outputVectors.T)))
+    # backward
+    grad = np.zeros_like(outputVectors)
+    for k, idx in enumerate(indices):
+        sign = labels[k]
+        grad[idx, :] += sign * predicted * (sigmoid(sign * np.dot(outputVectors[idx,:], predicted)) - 1)
 
-    # ### END YOUR CODE
-    return cost, gradPred, grad
+    gradPred = (labels * (h - 1)).T.dot(selected_output_vector)
+    ### END YOUR CODE
+    return cost, gradPred, grad.T
 
 
 def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
@@ -158,12 +161,11 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
 
     for contextWord in contextWords:
         idx = tokens[contextWord]
-        c, gradPred, grad = softmaxCostAndGradient(predicted, tokens[contextWord], outputVectors, dataset)
+        c, gradPred, grad = word2vecCostAndGradient(predicted, tokens[contextWord], outputVectors, dataset)
         cost += c
 
         gradIn[target, :] += gradPred.T
         gradOut += grad.T
-
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
