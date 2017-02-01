@@ -1,0 +1,25 @@
+def chooseBestModel(results):
+    """Choose the best model based on parameter tuning on the dev set
+
+    Arguments:
+    results -- A list of python dictionaries of the following format:
+        {
+            "reg": regularization,
+            "clf": classifier,
+            "train": trainAccuracy,
+            "dev": devAccuracy,
+            "test": testAccuracy
+        }
+
+    Returns:
+    Your chosen result dictionary.
+    """
+    bestResult = None
+
+    ### YOUR CODE HERE
+    dev_accuracy_list = [model['dev'] for model in results]
+    idx = np.argmax(dev_accuracy_list)
+    bestResult = results[idx]
+    ### END YOUR CODE
+
+    return bestResult

@@ -72,7 +72,7 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     grad = predicted.reshape((length, 1)).dot(delta.reshape((1, delta.shape[0])))                # H M
     ### END YOUR CODE
 
-    return cost, gradPred, grad
+    return cost, gradPred.T, grad.T
 
 def getNegativeSamples(target, dataset, K):
     """ Samples K indexes which are not the target """
@@ -105,23 +105,23 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     indices = [target]
     indices.extend(getNegativeSamples(target, dataset, K))
 
-    # ### YOUR CODE HERE
-    # # forward
-    cost = - np.log(sigmoid(predicted.dot(outputVectors[target,:].T)))
-    - np.sum(np.log(sigmoid(predicted.dot(outputVectors.T))))
+    ### YOUR CODE HERE
+    # forward
+    selected_output_vector = outputVectors[indices]
+    labels = np.array([-1 for _ in range(K+1)])
+    labels[0] = 1
+    h = sigmoid(labels * np.dot(selected_output_vector, predicted))
+    cost = - np.sum(np.log(h))
 
-    # # backward
-    label = np.zeros(predicted.shape)
-    label[target] = 1
+    # backward
+    grad = np.zeros_like(outputVectors)
+    for k, idx in enumerate(indices):
+        sign = labels[k]
+        grad[idx, :] += sign * predicted * (sigmoid(sign * np.dot(outputVectors[idx,:], predicted)) - 1)
 
-    grad = label * (sigmoid(outputVectors[target].dot(predicted)) - 1) * predicted
-    + predicted * (1 - sigmoid( - predicted.dot(outputVectors.T)))
-
-    gradPred = outputVectors[target,:] * (sigmoid(outputVectors[target].dot(predicted)) - 1)
-    + outputVectors.T.dot(1 - sigmoid( - predicted.dot(outputVectors.T)))
-
-    # ### END YOUR CODE
-    return cost, gradPred, grad
+    gradPred = (labels * (h - 1)).T.dot(selected_output_vector)
+    ### END YOUR CODE
+    return cost, gradPred.T, grad
 
 
 def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
@@ -158,12 +158,11 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
 
     for contextWord in contextWords:
         idx = tokens[contextWord]
-        c, gradPred, grad = softmaxCostAndGradient(predicted, tokens[contextWord], outputVectors, dataset)
+        c, gradPred, grad = word2vecCostAndGradient(predicted, idx, outputVectors, dataset)
         cost += c
 
-        gradIn[target, :] += gradPred.T
-        gradOut += grad.T
-
+        gradIn[target, :] += gradPred
+        gradOut += grad
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
@@ -187,11 +186,16 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    predicted_list = np.array([tokens[contextWord] for contextWord in contextWords])
+    predicted = np.sum(inputVectors[predicted_list], axis=0)
+
+    cost, gradPred, gradOut = word2vecCostAndGradient(predicted, tokens[currentWord], outputVectors, dataset)
+
+    for idx in predicted_list:
+        gradIn[idx, :] += gradPred
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
-
 
 #############################################
 # Testing functions below. DO NOT MODIFY!   #
