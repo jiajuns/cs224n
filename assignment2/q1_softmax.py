@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 from utils.general_utils import test_all_close
@@ -24,6 +25,8 @@ def softmax(x):
     """
 
     ### YOUR CODE HERE
+    with tf.variable_scope('softmax') as scope:
+        out = tf.exp(x)/tf.reduce_sum(tf.exp(x), axis=1, keep_dims=True)
     ### END YOUR CODE
 
     return out
@@ -46,7 +49,7 @@ def cross_entropy_loss(y, yhat):
 
     Args:
         y:    tf.Tensor with shape (n_samples, n_classes). One-hot encoded.
-        yhat: tf.Tensorwith shape (n_sample, n_classes). Each row encodes a
+        yhat: tf.Tensor with shape (n_sample, n_classes). Each row encodes a
                     probability distribution and should sum to 1.
     Returns:
         out:  tf.Tensor with shape (1,) (Scalar output). You need to construct this
@@ -54,6 +57,8 @@ def cross_entropy_loss(y, yhat):
     """
 
     ### YOUR CODE HERE
+    with tf.variable_scope('cross_entropy') as scope:
+        out = -tf.reduce_sum(tf.to_float(y)*tf.log(yhat))
     ### END YOUR CODE
 
     return out
@@ -76,7 +81,7 @@ def test_softmax_basic():
             test2 = sess.run(test2)
     test_all_close("Softmax test 2", test2, np.array([[0.73105858, 0.26894142]]))
 
-    print "Basic (non-exhaustive) softmax tests pass\n"
+    print("Basic (non-exhaustive) softmax tests pass\n")
 
 
 def test_cross_entropy_loss_basic():
@@ -95,7 +100,7 @@ def test_cross_entropy_loss_basic():
     expected = -3 * np.log(.5)
     test_all_close("Cross-entropy test 1", test1, expected)
 
-    print "Basic (non-exhaustive) cross-entropy tests pass"
+    print("Basic (non-exhaustive) cross-entropy tests pass")
 
 if __name__ == "__main__":
     test_softmax_basic()
