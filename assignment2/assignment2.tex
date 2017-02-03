@@ -1,0 +1,86 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
+\usepackage{tikz}
+\usepackage{verbatim}
+
+\begin{document}
+
+\begin{center}
+{\Large CS224N Winter 2016 Homework [2]}
+
+\begin{tabular}{rl}
+SUNet ID: & [06074217] \\
+Name: & [Jiajun Sun] \\
+\end{tabular}
+\end{center}
+
+By turning in this assignment, I agree by the Stanford honor code and declare
+that all of this is my own work.
+
+\section*{Problem 1}
+\begin{enumerate}[label=(\alph*)]
+\item
+\item
+\item
+The placeholder variable are created to store input data. There are two placeholder variable one for $X$ the other for label.
+Feed dictionaries are used for specifying variable for tensorflow placeholder.
+Here feed dictionaries feed batch data to two placeholders that we created.
+\item
+\item
+Tensorflow utilises the computation graph user created and automatically computes the gradient against all the tensorflow variable.
+
+\end{enumerate}
+
+\pagebreak[4]
+\section*{Problem 2}
+\begin{enumerate}[label=(\alph*)]
+\item
+Below table shows the sequence of transitions needed for parsing the sentence.
+\begin{center}
+\begin{tabular}{ l | l | l | l}
+  stack & buffer & new dependency & transition\\ \hline
+  \big[ROOT\big] & \big[I, parsed, this, sentence, correctly\big] &  & Initial Configuration\\
+  \big[ROOT, I\big] & \big[parsed, this, sentence, correctly\big] &  & SHIFT\\
+  \big[ROOT, I, parsed\big] & \big[this, sentence, correctly\big] &  & SHIFT\\
+  \big[ROOT, parsed\big] & \big[this, sentence, correctly\big] & parsed $\rightarrow$ I & LEFT-ARC\\
+  \big[ROOT, parsed, this\big] & \big[sentence, correctly\big] & & SHIFT\\
+  \big[ROOT, parsed, this, sentence\big] & \big[correctly\big] & & SHIFT\\
+  \big[ROOT, parsed, sentence\big] & \big[correctly\big] & sentence $\rightarrow$ this & LEFT-ARC\\
+  \big[ROOT, parsed\big] & \big[correctly\big] & parsed $\rightarrow$ sentence & RIGHT-ARC\\
+  \big[ROOT, parsed, correctly\big] & \big[ \big] & & SHIFT\\
+  \big[ROOT, parsed\big] & \big[ \big] & parsed $\rightarrow$ correctly & RIGHT-ARC\\
+  \big[ROOT\big] & \big[ \big] & ROOT $\rightarrow$ parsed & RIGHT-ARC\\
+\end{tabular}
+\end{center}
+\item
+A sentence contains $n$ words will be parsed in $2n$ steps.
+Within these $2n$ steps, $n$ steps are used for SHIFT and the other $n$ steps are used for LEFT-ARC or RIGHT-ARC.
+
+\item
+\item
+\item
+
+\item
+First let`s derive the expression for the expectation:
+\begin{equation*}
+	\mathbb{E}_{p_{drop}}[h_{drop}]_i = \gamma(1-p_{drop})h_i = h_i
+\end{equation*}
+Therefore, in order for the equation above to hold:
+\begin{equation}
+	\gamma = \frac{1}{1-p_{drop}}
+\end{equation}
+
+\item
+The $m$ step will merge the immediate updates with previous updates.
+For example if $\beta_1 = 0.9$, the immediate has a weight of $0.1$ and previous has a weight of $0.9$.
+This step help the training to be easier to converge.
+Normal SGD process usually carries stochastic fluctuation at the end of training.\\
+\\
+$\sqrt{\nu}$ is actually a scaling factor for learning rate.
+When gradient is larger, the learning rate will be scaled down and vice versa.
+This process can give the training faster converge compared to fix learning rate.
+
+\end{enumerate}
+
+\end{document}
+
