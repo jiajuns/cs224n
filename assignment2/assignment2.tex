@@ -80,6 +80,149 @@ $\sqrt{\nu}$ is actually a scaling factor for learning rate.
 When gradient is larger, the learning rate will be scaled down and vice versa.
 This process can give the training faster converge compared to fix learning rate.
 
+\item
+best UAV on dev sets:\\
+best UAV on test sets:\\
+
+list of predicted labels
+
+\end{enumerate}
+
+
+\pagebreak[4]
+\section*{Problem 3}
+\begin{enumerate}[label=(\alph*)]
+\item
+Since $y_j^{t}$ is a one-hot vector, let`s assume its $m$ element is $1$, which is $y_{j,m}^{t} = 1$.
+Therefore the perplexity and cross-entropy loss becomes:
+\begin{equation*}
+	J_{\theta}^{t} = - \log{\hat{y}_{j,m}^{t}}
+\end{equation*}
+\begin{equation*}
+	PP^{t}(y^t, \hat{y^t}) = \frac{1}{\hat{y}_{j,m}^{t}}
+\end{equation*}
+When the cross-entropy loss gets its minimal, $\hat{y}_{j,m}^{t}$ gets its maximal at the same time.
+As a result, perplexity gets its minimal as well.\\
+\\
+When the prediction is random (uniform distribution):
+\begin{equation}
+	\hat{y}_{j}^{t} = [1/|V|, 1/|V|, ..., 1/|V|, 1/|V|]
+\end{equation}
+Therefore, the cross-entropy loss becomes when $|V|=1000$:
+\begin{equation}
+	J_{\theta}^{t} = -\log{1/1000} = log{1000}
+\end{equation}
+and the perplexity:
+\begin{equation}
+	PP^{t}(y^t, \hat{y^t}) = \frac{1}{1/1000} = 1000
+\end{equation}
+
+\item
+Given we have derive the gradient for cross-entropy and softmax function in previous assignment, below are some properties we already know:
+\begin{equation}
+	\sigma' = \sigma(1-\sigma)
+\end{equation}
+
+\begin{equation}
+	\frac{\partial CE(y, \hat{y})}{\partial softmax(\theta)}\frac{softmax(\theta)}{\partial \theta} = (\hat{y} - y)
+\end{equation}
+
+In the below derivation, I will directly apply above equations:
+\begin{equation}
+\begin{aligned}
+	\frac{\partial J^{(t)}}{\partial b_2} & = \frac{\partial J^{(t)}}{\partial \hat{y}^{(t)}}
+	\frac{\partial \hat{y}^{(t)}}{\partial b_2}\\
+	& = \sum_i\frac{\partial J^{(t)}}{\partial \hat{y_i}^{(t)}}
+	\frac{\partial \hat{y_i}^{(t)}}{\partial b_{2,j}}
+	= \sum_i\frac{-y_i^{(t)}}{\hat{y_i}^{(t)}}
+	\frac{\partial \hat{y_i}^{(t)}}{\partial b_{2,j}}\\
+	& = \sum_i\frac{-y_i^{(t)}}{\hat{y_i}^{(t)}}\hat{y_i}^{(t)}(y_j^{(t)}-\hat{y_j}^{(t)})\mathbf{1}\\
+	& = -(y_j^{(t)}-\hat{y_j}^{(t)})\mathbf{1}\\
+	& = \hat{\mathbf{y}}^{(t)} - \mathbf{y}^{(t)}
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+	\frac{\partial J^{(t)}}{\partial L_x^{(t)}} & = \frac{\partial J^{(t)}}{\partial \hat{y}^{(t)}}
+	\frac{\partial \hat{y}^{(t)}}{\partial h^{(t)}}\frac{\partial h^{(t)}}{\partial e^{(t)}}\frac{\partial e^{(t)}}{\partial L_x^{(t)}}\\
+	& = \sum_i(\frac{\partial J^{(t)}}{\partial \hat{y}^{(t)}}\frac{\partial \hat{y}^{(t)}}{\partial h^{(t)}})_i
+	\frac{\partial h_i}{\partial e^{(t)}_j}\frac{\partial e^{(t)}_j}{\partial L_x^{(t)}}\\
+	& = \sum_i (\hat{\mathbf{y}}^{(t)} - \mathbf{y}^{(t)})U^{T}_ih^{(t)}_i(1-h^{(t)}_i)I^{T}_{i,j}1\\
+	& = (\hat{\mathbf{y}}^{(t)} - \mathbf{y}^{(t)})U^{T}\circ h^{(t)}\circ(1-h^{(t)})I^{T}
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+	\left.\frac{\partial J}{\partial I}\right|_{(t)} & = \frac{\partial J^{(t)}}{\partial \hat{y}^{(t)}}
+	\frac{\partial \hat{y}^{(t)}}{\partial h^{(t)}}\frac{\partial h^{(t)}}{\partial I}\\
+	& = (\frac{\partial J^{(t)}}{\partial \hat{y}^{(t)}}\frac{\partial \hat{y}^{(t)}}{\partial h^{(t)}})_i\frac{\partial h_i}{\partial I_{i,j}}\\
+	& = (\hat{\mathbf{y}}^{(t)} - \mathbf{y}^{(t)})U^{T}_ih^{(t)}_i(1-h^{(t)}_i)e^{(t)}_j\\
+	& = e^{(t)^T}(\hat{\mathbf{y}}^{(t)} - \mathbf{y}^{(t)})U^{T}\circ h^{(t)}\circ(1-h^{(t)})
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+	\left.\frac{\partial J}{\partial H}\right|_{(t)} & = \frac{\partial J^{(t)}}{\partial \hat{y}^{(t)}}
+	\frac{\partial \hat{y}^{(t)}}{\partial h^{(t)}}\frac{\partial h^{(t)}}{\partial H}\\
+	& = (\frac{\partial J^{(t)}}{\partial \hat{y}^{(t)}}\frac{\partial \hat{y}^{(t)}}{\partial h^{(t)}})_i\frac{\partial h_i}{\partial H_{i,j}}\\
+	& = (\hat{\mathbf{y}}^{(t)} - \mathbf{y}^{(t)})U^{T}_ih^{(t)}_i(1-h^{(t)}_i)h^{(t-1)}_j\\
+	& = h^{(t-1)^T}(\hat{\mathbf{y}}^{(t)} - \mathbf{y}^{(t)})U^{T}\circ h^{(t)}\circ(1-h^{(t)})
+\end{aligned}
+\end{equation}
+
+\item
+First denotes $\frac{\partial J^{(t)}}{\partial h^{(t-1)}}$ as $\delta^{(t-1)}$ and:
+\begin{equation*}
+	\delta^{(t-1)} =(\hat{\mathbf{y}}^{(t)} - \mathbf{y}^{(t)})U^{T}\circ h^{(t)}\circ(1-h^{(t)})H^{T}
+\end{equation*}
+
+\begin{equation}
+\begin{aligned}
+	\frac{\partial J^{(t)}}{\partial L_x^{(t-1)}} & = \frac{\partial J^{(t)}}{\partial h^{(t-1)}}
+	\frac{\partial h^{(t-1)}}{\partial L_x^{(t-1)}}\\
+	& = (\delta^{t-1}\circ h^{(t-1)}\circ(1-h^{(t)}))I^{T}
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+	\frac{\partial J^{(t)}}{\partial I} & = \frac{\partial J^{(t)}}{\partial h^{(t-1)}}
+	\frac{\partial h^{(t-1)}}{\partial I}\\
+	& = e^{(t-1)^T}(\delta^{t-1}\circ h^{(t-1)}\circ(1-h^{(t)}))
+\end{aligned}
+\end{equation}
+
+\begin{equation}
+\begin{aligned}
+	\frac{\partial J^{(t)}}{\partial H} & = \frac{\partial J^{(t)}}{\partial h^{(t-1)}}
+	\frac{\partial h^{(t-1)}}{\partial H}\\
+	& = h^{(t-2)^T}(\delta^{t-1}\circ h^{(t-1)}\circ(1-h^{(t)}))
+\end{aligned}
+\end{equation}
+
+\item
+For the forward propogation,
+\begin{equation*}
+	cost(h) = o(D_h^2) + o(D_h)
+\end{equation*}
+\begin{equation*}
+	cost(\sigma) = o(D_h|V|)
+\end{equation*}
+\begin{equation*}
+	cost(J) = o(|V|)
+\end{equation*}
+Therefore, the total cost for forward propogation:
+\begin{equation*}
+	o(D_h^2) + o(D_h) + o(D_h|V|) + o(|V|) \approx o(D_h^2) + o(D_h|V|)
+\end{equation*}
+
+The cost for forward propogation:
+
+\item
+
 \end{enumerate}
 
 \end{document}

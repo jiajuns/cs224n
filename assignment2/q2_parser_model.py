@@ -147,9 +147,14 @@ class ParserModel(Model):
 
         x = self.add_embedding()
         ### YOUR CODE HERE
-        xavier_initializer = xavier_weight_init()
-        W = xavier_initializer(shape=(self.config.n_features*self.config.embed_size, self.config.hidden_size))
-        U = xavier_initializer(shape=(self.config.hidden_size, self.config.n_classes))
+        # xavier_initializer = xavier_weight_init()
+
+        W = tf.get_variable('W', shape=(self.config.n_features*self.config.embed_size, self.config.hidden_size), initializer=xavier_weight_init())
+        U = tf.get_variable('U', shape=(self.config.hidden_size, self.config.n_classes), initializer=xavier_weight_init())
+
+        # W = xavier_initializer(shape=(self.config.n_features*self.config.embed_size, self.config.hidden_size))
+        # U = xavier_initializer(shape=(self.config.hidden_size, self.config.n_classes))
+
         b1 = tf.Variable(tf.zeros(shape=(self.config.hidden_size, )), name='b1')
         b2 = tf.Variable(tf.zeros(shape=(self.config.n_classes)), name='b2')
 
@@ -197,7 +202,7 @@ class ParserModel(Model):
             train_op: The Op for training.
         """
         ### YOUR CODE HERE
-        train_op = tf.train.AdamOptimizer(beta1=0.9, beta2=0.99).minimize(loss)
+        train_op = tf.train.AdamOptimizer(self.config.lr).minimize(loss)
         ### END YOUR CODE
         return train_op
 
@@ -236,7 +241,7 @@ class ParserModel(Model):
         self.build()
 
 
-def main(debug=True):
+def main(debug=False):
     print 80 * "="
     print "INITIALIZING"
     print 80 * "="
