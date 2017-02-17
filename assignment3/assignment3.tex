@@ -1,0 +1,67 @@
+\documentclass[10pt]{article}
+\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
+\usepackage{tikz}
+\usepackage{verbatim}
+
+\begin{document}
+
+\begin{center}
+{\Large CS224N Winter 2016 Homework [3]}
+
+\begin{tabular}{rl}
+SUNet ID: & [jiajuns, xxx, xxx] \\
+Name: & [Jiajun Sun, Sijun He, Mingxiang Chen] \\
+\end{tabular}
+\end{center}
+
+By turning in this assignment, I agree by the Stanford honor code and declare
+that all of this is my own work.
+
+\section*{Problem 1}
+\begin{enumerate}[label=(\alph*)]
+\item
+i.\\
+Yesterday, price of Apple increased 6.56 percent.\\
+Here apply can be interpreted as Apple company or the apple we eat.\\
+\\
+Mogen Stanley has bought a land besides Sand Hill Road as their bay area headquater.
+Mogen Stanley can be interpreted as a name or a company.\\
+\\
+
+ii.\\
+Words alone can have ambiguity, therefore adding features other than the word itself can help reduce ambiguity.\\
+\\
+
+iii.\\
+First, the context of the word can help. The words around can imply the correct meaning of the center word.
+Second, dependence structure could give the information on what is the function of the center word in the sentences.
+This information can help interprete its entity.
+
+\item
+i.\\
+$e^{(t)}$ has dimension of $1 \times 2(w+1)D$\\
+$W$ has dimension of $2(w+1)D \times H$\\
+$U$ has dimension of $H \times C$\\
+\\
+ii.\\
+$$cost(ReLu) = o(H) + o(2(w+1)D \times H)$$
+$$cost(softmax) = o(H \times C) + o(C)$$
+$$cost(CE) = o(C)$$
+Given the sentences has length of $T$, the computation complexity is:
+$$
+\begin{aligned}
+cost
+& = T \times o(o(H) + o(2(w+1)D \times H) + o(H \times C) + o(C) + o(C))\\
+& \approx T o(2(w+1)D \times H)\\
+& \approx T o(wDH)
+\end{aligned}
+$$
+
+\item
+(code)
+
+\end{enumerate}
+
+
+\end{document}
+
