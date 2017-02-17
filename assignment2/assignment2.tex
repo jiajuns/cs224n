@@ -81,11 +81,8 @@ When gradient is larger, the learning rate will be scaled down and vice versa.
 This process can give the training faster converge compared to fix learning rate.
 
 \item
-best UAV on dev sets:\\
-best UAV on test sets:\\
-
-list of predicted labels
-
+best UAV on dev sets: 88.50\\
+best UAV on test sets: 89.12\\
 \end{enumerate}
 
 
@@ -108,13 +105,13 @@ When the prediction is random (uniform distribution):
 \begin{equation}
 	\hat{y}_{j}^{t} = [1/|V|, 1/|V|, ..., 1/|V|, 1/|V|]
 \end{equation}
-Therefore, the cross-entropy loss becomes when $|V|=1000$:
+Therefore, the cross-entropy loss becomes when $|V|=10000$:
 \begin{equation}
-	J_{\theta}^{t} = -\log{1/1000} = log{1000}
+	J_{\theta}^{t} = -\log{1/10000} = \log{10000}
 \end{equation}
 and the perplexity:
 \begin{equation}
-	PP^{t}(y^t, \hat{y^t}) = \frac{1}{1/1000} = 1000
+	PP^{t}(y^t, \hat{y^t}) = \frac{1}{1/10000} = 10000
 \end{equation}
 
 \item
@@ -183,27 +180,28 @@ First denotes $\frac{\partial J^{(t)}}{\partial h^{(t-1)}}$ as $\delta^{(t-1)}$ 
 \begin{aligned}
 	\frac{\partial J^{(t)}}{\partial L_x^{(t-1)}} & = \frac{\partial J^{(t)}}{\partial h^{(t-1)}}
 	\frac{\partial h^{(t-1)}}{\partial L_x^{(t-1)}}\\
-	& = (\delta^{t-1}\circ h^{(t-1)}\circ(1-h^{(t)}))I^{T}
+	& = (\delta^{t-1}\circ h^{(t-1)}\circ(1-h^{(t-1)}))I^{T}
 \end{aligned}
 \end{equation}
 
 \begin{equation}
 \begin{aligned}
-	\frac{\partial J^{(t)}}{\partial I} & = \frac{\partial J^{(t)}}{\partial h^{(t-1)}}
+	\left.\frac{\partial J^{(t)}}{\partial I}\right|_{(t-1)} & = \frac{\partial J^{(t)}}{\partial h^{(t-1)}}
 	\frac{\partial h^{(t-1)}}{\partial I}\\
-	& = e^{(t-1)^T}(\delta^{t-1}\circ h^{(t-1)}\circ(1-h^{(t)}))
+	& = e^{(t-1)^T}(\delta^{t-1}\circ h^{(t-1)}\circ(1-h^{(t-1)}))
 \end{aligned}
 \end{equation}
 
 \begin{equation}
 \begin{aligned}
-	\frac{\partial J^{(t)}}{\partial H} & = \frac{\partial J^{(t)}}{\partial h^{(t-1)}}
+	\left.\frac{\partial J^{(t)}}{\partial H}\right|_{(t-1)} & = \frac{\partial J^{(t)}}{\partial h^{(t-1)}}
 	\frac{\partial h^{(t-1)}}{\partial H}\\
-	& = h^{(t-2)^T}(\delta^{t-1}\circ h^{(t-1)}\circ(1-h^{(t)}))
+	& = h^{(t-2)^T}(\delta^{t-1}\circ h^{(t-1)}\circ(1-h^{(t-1)}))
 \end{aligned}
 \end{equation}
 
 \item
+\textbf{Forward cost:}\\
 For the forward propogation,
 \begin{equation*}
 	cost(h) = o(D_h^2) + o(D_h)
@@ -218,10 +216,52 @@ Therefore, the total cost for forward propogation:
 \begin{equation*}
 	o(D_h^2) + o(D_h) + o(D_h|V|) + o(|V|) \approx o(D_h^2) + o(D_h|V|)
 \end{equation*}
+If assume the vocabulary size $|V|$ is much greater than hidden layer dimension, we can have:
+$$
+cost \approx o(D_h|V|)
+$$
 
-The cost for forward propogation:
+
+\textbf{Backward cost:}\\
+The cost for backward propogation is comprised of the following element:
+\begin{equation*}
+cost(\delta^{(t-1)}) = o(D_h|V|) + o(D_h) + o(D_h^2)
+\end{equation*}
+
+\begin{equation*}
+cost(\frac{\partial J^{(t)}}{\partial L_x^{(t-1)}}) = o(D_h) + o(dD_h)
+\end{equation*}
+
+\begin{equation*}
+cost(\left.\frac{\partial J^{(t)}}{\partial I}\right|_{(t-1)}) = o(dD_h)
+\end{equation*}
+
+\begin{equation*}
+cost(\left.\frac{\partial J^{(t)}}{\partial H}\right|_{(t-1)}) = o(D_h^2)
+\end{equation*}
+
+Therefore, the total cost for backward propogation is:
+\begin{equation*}
+o(D_h|V|) + o(D_h) + o(D_h^2) + o(D_h) + o(dD_h) + o(dD_h) + o(D_h^2) \approx o(D_h|V|) + o(dD_h) + o(D_h^2)
+\end{equation*}
+If we assume the vocabulary size is much larger than other dimensions:
+$$
+cost \approx o(D_h|V|)
+$$
+When adding multiple steps back in time, the cost matters is for calculating $\delta$:
+$$
+\begin{aligned}
+cost & \approx n\times cost(\delta)\\
+&= o(nD_h|V|) + o(nD_h) + o(nD_h^2)\\
+& \approx o(D_h|V|)
+\end{aligned}
+$$
 
 \item
+We find most the computation are constriants by the dimension of vocabulary.
+One possible way is to add a layer that rather take work vector into a word class vector.
+Then take this word class vector into the RNN. This should reduce the cost for both forward and backward propogation.
+
 
 \end{enumerate}
 
