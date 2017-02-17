@@ -36,3 +36,4 @@ assignment2/q2_parser_transitions.pyc
 assignment2/utils/__init__.pyc
 assignment2/utils/general_utils.pyc
 assignment2/utils/parser_utils.pyc
+*.pyc
