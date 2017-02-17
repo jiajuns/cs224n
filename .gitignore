@@ -26,3 +26,13 @@ assignment1/utils/datasets/stanfordSentimentTreebank/README.txt
 assignment1/utils/datasets/stanfordSentimentTreebank/sentiment_labels.txt
 assignment1/utils/datasets/stanfordSentimentTreebank/SOStr.txt
 assignment1/utils/datasets/stanfordSentimentTreebank/STree.txt
+assignment2/assignment2.aux
+assignment2/assignment2.log
+assignment2/assignment2.vscodeLog
+assignment2/kernel-56ad5de4-a462-48b8-9ebf-6ae67274182c.json
+assignment2/model.pyc
+assignment2/q2_initialization.pyc
+assignment2/q2_parser_transitions.pyc
+assignment2/utils/__init__.pyc
+assignment2/utils/general_utils.pyc
+assignment2/utils/parser_utils.pyc
