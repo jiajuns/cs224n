@@ -130,6 +130,23 @@ However, by doing this the $F_1$ score should drop, because the prediction is bi
 ii.\\
 Optimizing $F_1$ score requires looking through the entire training set. The cost and memory requirement is huge.
 
+\item
+(code)
+
+\item
+The padded label $y$ will be transform into a one-hot vector.
+When $y=0$, the corresponding one-hot vector is $[1, 0, 0, 0, 0]$.
+Therefore, the padded label will be considered as label $o$.
+The cross entropy loss is not always zero for the padded part.
+
+\item
+(code)
+
+\item
+result:
+
+\item
+
 \end{enumerate}
 
 
