@@ -47,6 +47,7 @@ class Config:
     batch_size = 2048
     n_epochs = 10
     lr = 0.001
+    conll_output = 'window_predictions.conll'
 
     def __init__(self, output_path=None):
         if output_path:

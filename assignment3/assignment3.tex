@@ -1,6 +1,7 @@
 \documentclass[10pt]{article}
 \usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
 \usepackage{tikz}
+\usepackage{array}
 \usepackage{verbatim}
 
 \begin{document}
@@ -44,9 +45,13 @@ $W$ has dimension of $2(w+1)D \times H$\\
 $U$ has dimension of $H \times C$\\
 \\
 ii.\\
-$$cost(ReLu) = o(H) + o(2(w+1)D \times H)$$
-$$cost(softmax) = o(H \times C) + o(C)$$
-$$cost(CE) = o(C)$$
+$$
+\begin{aligned}
+& cost(ReLu) = o(H) + o(2(w+1)D \times H)\\
+& cost(softmax) = o(H \times C) + o(C)\\
+& cost(CE) = o(C)
+\end{aligned}
+$$
 Given the sentences has length of $T$, the computation complexity is:
 $$
 \begin{aligned}
@@ -59,6 +64,71 @@ $$
 
 \item
 (code)
+
+\item
+i.\\
+Entity level P/R/F1: 0.82/0.84/0.83\\
+\begin{table}[h]
+	\centering
+	\caption{confusion matrix}
+	\begin{tabular}{|l|l|l|l|l|l|}
+	\hline
+	gogu & PER     & ORG     & LOC     & MISC    & O        \\ \hline
+	PER   & 2940.00 & 56.00   & 46.00   & 13.00   & 94.00    \\ \hline
+	ORG   & 128.00  & 1676.00 & 92.00   & 63.00   & 133.00   \\ \hline
+	LOC   & 54.00   & 119.00  & 1845.00 & 29.00   & 47.00    \\ \hline
+	MISC  & 36.00   & 63.00   & 35.00   & 1018.00 & 116.00   \\ \hline
+	O     & 37.00   & 42.00   & 12.00   & 31.00   & 42637.00 \\ \hline
+	\end{tabular}
+\end{table}
+
+ii.\\
+First limitation is length of context is limited by the length of window size.
+For example the \textbf{Test and County Cricket Board} does not get right label, because the length has exceeded the window size.\\
+\\
+Second limitation (some helps me out here)
+
+\end{enumerate}
+
+\begin{enumerate}[label=(\alph*)]
+\item
+i.\\
+The number of RNN parameters:
+$$
+V \times D + H \times H + D \times H + H + H \times C + C
+$$
+The number of window-based model parameters:
+$$
+V \times D + D \times H + H + H \times C + C
+$$
+Therefore, RNN has $HH$ more parameters than window-based model.\\
+
+ii.\\
+Cost for one time step:
+$$
+\begin{aligned}
+& cost(h) = o(H \times H) + o(D \times H) + o(H)\\
+& cost(softmax) = o(H \times C) + o(C)\\
+& cost(CE) = o(C)
+\end{aligned}
+$$
+Adding them up:
+$$
+o(H \times H) + o(D \times H) + o(H) + o(H \times C) + o(C) + o(C) \approx o(H \times H) + o(D \times H)
+$$
+Therefore the total cost for sentence of length $T$:
+$$
+cost = T(o(H \times H) + o(D \times H))
+$$
+
+\item
+i.\\
+Consider a dataset that most of (over $90\%$) the entity is person,
+if the model label all the entity as person the cross entropy error should be smaller.
+However, by doing this the $F_1$ score should drop, because the prediction is biased and recall value will drop.
+
+ii.\\
+Optimizing $F_1$ score requires looking through the entire training set. The cost and memory requirement is huge.
 
 \end{enumerate}
 
