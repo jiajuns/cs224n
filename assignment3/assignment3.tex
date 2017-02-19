@@ -146,6 +146,35 @@ The cross entropy loss is not always zero for the padded part.
 result:
 
 \item
+explanation:
+
+\end{enumerate}
+
+\begin{enumerate}[label=(\alph*)]
+\item
+i.\\
+$U_h = 1$, $W_h = 1$ and $b_h = 0$ will allow the RNN to replicate this behavior.\\
+
+ii.\\
+$U_z = 0$, $W_z = 1$, $U_h = 1$ and $W_h$ can be any value.\\
+When $x=0$, $z_t = 0$ and $\tilde{h_t} = 0$ thus the hidden state will always be $h_t = 0$.
+Whenever $x=1$, $z_t = 0$ and the hidden state will keep to be $h_t = h_{t-1} = 1$.
+
+\item
+i.\\
+It is impossible for RNN to have togging behavior.
+$U_t$ has to be a positive number in order to let $h_t$ switch to $1$.
+Therefore for the second time when $x = 1$ it is impossible to let $h_t$ switch back to $0$.\\
+
+ii.\\
+$b_r = 1$, $U_z = -1$, $W_z = 1$, $U_h = 1$ and $W_h = -1$.
+When $x=0$, $z_t = 0$ and $\tilde{h_t} = 0$ thus the hidden state will always be $h_t = 0$.
+When $x=1$ for the first time, $z_t = 0$ but $\tilde{h_t} = 1$ thus the hidden state will switch to $h_t = 1$.
+If $h_t=1$ and $x=0$, $z_t = 1$ and hidden state $h_t = h_{t-1} = 1$.
+But if $x=1$, $z_t = 0$ and hidden state $h_t = \tilde{h_t} = 0$.
+
+\item
+(code)
 
 \end{enumerate}
 
