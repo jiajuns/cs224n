@@ -61,11 +61,11 @@ class SequencePredictor(Model):
             feed_dict[self.labels_placeholder] = labels_batch
         return feed_dict
 
-    def add_prediction_op(self): 
+    def add_prediction_op(self):
         """Runs an rnn on the input using TensorFlows's
         @tf.nn.dynamic_rnn function, and returns the final state as a prediction.
 
-        TODO: 
+        TODO:
             - Call tf.nn.dynamic_rnn using @cell below. See:
               https://www.tensorflow.org/api_docs/python/nn/recurrent_neural_networks
             - Apply a sigmoid transformation on the final state to
@@ -87,8 +87,10 @@ class SequencePredictor(Model):
 
         x = self.inputs_placeholder
         ### YOUR CODE HERE (~2-3 lines)
+        h = tf.zeros_like(x[:,1])
+        outputs, state = tf.nn.dynamic_rnn(cell, x, initial_state=h)
+        preds = tf.sigmoid(state)
         ### END YOUR CODE
-
         return preds #state # preds
 
     def add_loss_op(self, preds):
@@ -106,9 +108,8 @@ class SequencePredictor(Model):
             loss: A 0-d tensor (scalar)
         """
         y = self.labels_placeholder
-
         ### YOUR CODE HERE (~1-2 lines)
-
+        loss = tf.reduce_mean(tf.nn.l2_loss(preds - y))
         ### END YOUR CODE
 
         return loss
@@ -139,11 +140,14 @@ class SequencePredictor(Model):
         optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.config.lr)
 
         ### YOUR CODE HERE (~6-10 lines)
+        grads_and_vars = optimizer.compute_gradients(loss)
+        grads = [gv[0] for gv in grads_and_vars]
+        variables = [gv[1] for gv in grads_and_vars]
 
-        # - Remember to clip gradients only if self.config.clip_gradients
-        # is True.
-        # - Remember to set self.grad_norm
-
+        if self.config.clip_gradients:
+            grads, _ = tf.clip_by_global_norm(grads, self.config.max_grad_norm)
+        self.grad_norm = tf.global_norm(grads)
+        train_op = optimizer.apply_gradients(zip(grads, variables))
         ### END YOUR CODE
 
         assert self.grad_norm is not None, "grad_norm was not set properly!"
