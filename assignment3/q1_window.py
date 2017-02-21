@@ -96,24 +96,35 @@ def make_windowed_data(data, start, end, window_size = 1):
     windowed_data = []
     for sentence, labels in data:
     ### YOUR CODE HERE (5-20 lines)
-        temp_windowed = list()
-        sentence_size = len(sentence)
-        for idx, label in enumerate(labels):
-            if idx < window_size:
-                if (idx + window_size + 1) <= (sentence_size):
-                    sub_sentence = list(itertools.chain.from_iterable(sentence[:(idx + window_size + 1)]))
-                    temp_windowed = start + sub_sentence
-                else:
-                    sub_sentence = list(itertools.chain.from_iterable(sentence))
-                    temp_windowed = start + sub_sentence + end
-            if idx >= window_size:
-                if (idx + window_size + 1) <= (sentence_size):
-                    sub_sentence = list(itertools.chain.from_iterable(sentence[(idx-window_size):(idx + window_size + 1)]))
-                    temp_windowed = sub_sentence
-                else:
-                    sub_sentence = list(itertools.chain.from_iterable(sentence[(idx-window_size):]))
-                    temp_windowed = sub_sentence + end
-            windowed_data.append(tuple([temp_windowed, label]))
+        for i in xrange(len(sentence)):
+            window = []
+            if i - window_size < 0: 
+                window += start 
+            windowStart = max(0, i - window_size)
+            windowEnd = min(i + window_size + 1, len(sentence))
+            for j in xrange(windowStart, windowEnd):
+                window += sentence[j]
+            if i + window_size > len(sentence) - 1: 
+                window += end 
+            windowed_data.append((window, labels[i]))
+        # temp_windowed = list()
+        # sentence_size = len(sentence)
+        # for idx, label in enumerate(labels):
+        #     if idx < window_size:
+        #         if (idx + window_size + 1) <= (sentence_size):
+        #             sub_sentence = list(itertools.chain.from_iterable(sentence[:(idx + window_size + 1)]))
+        #             temp_windowed = start + sub_sentence
+        #         else:
+        #             sub_sentence = list(itertools.chain.from_iterable(sentence))
+        #             temp_windowed = start + sub_sentence + end
+        #     if idx >= window_size:
+        #         if (idx + window_size + 1) <= (sentence_size):
+        #             sub_sentence = list(itertools.chain.from_iterable(sentence[(idx-window_size):(idx + window_size + 1)]))
+        #             temp_windowed = sub_sentence
+        #         else:
+        #             sub_sentence = list(itertools.chain.from_iterable(sentence[(idx-window_size):]))
+        #             temp_windowed = sub_sentence + end
+        #     windowed_data.append(tuple([temp_windowed, label]))
     ### END YOUR CODE
     return windowed_data
 
@@ -171,17 +182,13 @@ class WindowModel(NERModel):
             feed_dict: The feed dictionary mapping from placeholders to values.
         """
         ### YOUR CODE HERE (~5-10 lines)
-        if labels_batch is None:
-            feed_dict = {
-                self.input_placeholder: inputs_batch,
-                self.dropout_placeholder: dropout
-            }
-        elif labels_batch is not None:
-            feed_dict = {
-                self.input_placeholder: inputs_batch,
-                self.labels_placeholder: labels_batch,
-                self.dropout_placeholder: dropout
-            }
+        feed_dict = {
+            self.input_placeholder: inputs_batch
+        }
+        if labels_batch is not None:
+            feed_dict[self.labels_placeholder] = labels_batch
+        if dropout is not None:
+            feed_dict[self.dropout_placeholder] = dropout   
         ### END YOUR CODE
         return feed_dict
 

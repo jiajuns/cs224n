@@ -18,15 +18,15 @@ Name: & [Jiajun Sun, Sijun He, Mingxiang Chen] \\
 By turning in this assignment, I agree by the Stanford honor code and declare
 that all of this is my own work.
 
-\section*{Problem 1}
+\section*{Problem 1: A window into NER}
 \begin{enumerate}[label=(\alph*)]
 \item
 i.\\
 Yesterday, price of Apple increased 6.56 percent.\\
-Here apply can be interpreted as Apple company or the apple we eat.\\
+Here apply can be interpreted as Apple the company or apple the fruit.\\
 \\
-Mogen Stanley has bought a land besides Sand Hill Road as their bay area headquater.
-Mogen Stanley can be interpreted as a name or a company.\\
+Calvin Klein just released some nice designs for the winter season.\\
+Here Calvin Klein can be interpreted as a name or a company.\\
 \\
 
 ii.\\
@@ -35,8 +35,7 @@ Words alone can have ambiguity, therefore adding features other than the word it
 
 iii.\\
 First, the context of the word can help. The words around can imply the correct meaning of the center word.
-Second, dependence structure could give the information on what is the function of the center word in the sentences.
-This information can help interprete its entity.
+Second, dependence structure within the window could shed light on the function of the center word in the sentences, which helps interpreting its entity.
 
 \item
 i.\\
@@ -47,18 +46,18 @@ $U$ has dimension of $H \times C$\\
 ii.\\
 $$
 \begin{aligned}
-& cost(ReLu) = o(H) + o(2(w+1)D \times H)\\
-& cost(softmax) = o(H \times C) + o(C)\\
-& cost(CE) = o(C)
+& cost(ReLu) = \mathcal{O}(H) + \mathcal{O}(2(w+1)D \times H)\\
+& cost(softmax) = \mathcal{O}(H \times C) + \mathcal{O}(C)\\
+& cost(CE) = \mathcal{O}(C)
 \end{aligned}
 $$
 Given the sentences has length of $T$, the computation complexity is:
 $$
 \begin{aligned}
 cost
-& = T \times o(o(H) + o(2(w+1)D \times H) + o(H \times C) + o(C) + o(C))\\
-& \approx T o(2(w+1)D \times H)\\
-& \approx T o(wDH)
+& = T \times \mathcal{O}(\mathcal{O}(H) + \mathcal{O}(2(w+1)D \times H) + \mathcal{O}(H \times C) + \mathcal{O}(C) + \mathcal{O}(C))\\
+& \approx \mathcal{O}(2(w+1)D \times H \times T)\\
+& \approx \mathcal{O}(wDHT)
 \end{aligned}
 $$
 
@@ -68,12 +67,13 @@ $$
 \item
 i.\\
 Entity level P/R/F1: 0.82/0.84/0.83\\
+The confusion matrix shows that the model has a very low false positive rate of misclassifying null class into an entity. Among all the entities,  ORG has the lowest accuracy.
 \begin{table}[h]
 	\centering
 	\caption{confusion matrix}
 	\begin{tabular}{|l|l|l|l|l|l|}
 	\hline
-	gogu & PER     & ORG     & LOC     & MISC    & O        \\ \hline
+	Acutal \textbackslash Predicted & PER     & ORG     & LOC     & MISC    & O        \\ \hline
 	PER   & 2940.00 & 56.00   & 46.00   & 13.00   & 94.00    \\ \hline
 	ORG   & 128.00  & 1676.00 & 92.00   & 63.00   & 133.00   \\ \hline
 	LOC   & 54.00   & 119.00  & 1845.00 & 29.00   & 47.00    \\ \hline
@@ -83,13 +83,14 @@ Entity level P/R/F1: 0.82/0.84/0.83\\
 \end{table}
 
 ii.\\
-First limitation is length of context is limited by the length of window size.
+The first limitation is that the length of context is limited by the length of window size.
 For example the \textbf{Test and County Cricket Board} does not get right label, because the length has exceeded the window size.\\
 \\
-Second limitation (some helps me out here)
+The second limitation is that the model is too simplistic. The context is based solely on concatenating word vectors. The model can't decide which word in the context should it focus on. For example, \textbf{Grace Road} was not correctly classified in ``at Grace Road". The word ``at" is a very strong signal that the next word/phrases should be locations but the model fails to capture that. Currently the word ``at" has the same effect anywhere within the window. With a more sophisticated model like LSTM or GRU, we should be able to put emphasis on words that are more relevant to the entity. 
 
 \end{enumerate}
-
+\clearpage
+\section*{Problem 2:RNN for NER}
 \begin{enumerate}[label=(\alph*)]
 \item
 i.\\
@@ -107,18 +108,18 @@ ii.\\
 Cost for one time step:
 $$
 \begin{aligned}
-& cost(h) = o(H \times H) + o(D \times H) + o(H)\\
-& cost(softmax) = o(H \times C) + o(C)\\
-& cost(CE) = o(C)
+& cost(h) = \mathcal{O}(H \times H) + \mathcal{O}(D \times H) + \mathcal{O}(H)\\
+& cost(softmax) = \mathcal{O}(H \times C) + \mathcal{O}(C)\\
+& cost(CE) = \mathcal{O}(C)
 \end{aligned}
 $$
 Adding them up:
 $$
-o(H \times H) + o(D \times H) + o(H) + o(H \times C) + o(C) + o(C) \approx o(H \times H) + o(D \times H)
+\mathcal{O}(H \times H) + \mathcal{O}(D \times H) + \mathcal{O}(H) + \mathcal{O}(H \times C) + \mathcal{O}(C) + \mathcal{O}(C) \approx \mathcal{O}(H \times H) + \mathcal{O}(D \times H)
 $$
 Therefore the total cost for sentence of length $T$:
 $$
-cost = T(o(H \times H) + o(D \times H))
+cost = T(\mathcal{O}(H \times H) + \mathcal{O}(D \times H))
 $$
 
 \item
@@ -149,7 +150,8 @@ result:
 explanation:
 
 \end{enumerate}
-
+\clearpage
+\section*{Problem 3:Grooving with GRUs}
 \begin{enumerate}[label=(\alph*)]
 \item
 i.\\
