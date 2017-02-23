@@ -37,3 +37,6 @@ assignment2/utils/__init__.pyc
 assignment2/utils/general_utils.pyc
 assignment2/utils/parser_utils.pyc
 *.pyc
+assignment3/assignment3.aux
+assignment3/assignment3.log
+assignment3/assignment3.pdf
