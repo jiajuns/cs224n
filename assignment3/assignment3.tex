@@ -28,11 +28,9 @@ Here apply can be interpreted as Apple the company or apple the fruit.\\
 Calvin Klein just released some nice designs for the winter season.\\
 Here Calvin Klein can be interpreted as a name or a company.\\
 \\
-
 ii.\\
 Words alone can have ambiguity, therefore adding features other than the word itself can help reduce ambiguity.\\
 \\
-
 iii.\\
 First, the context of the word can help. The words around can imply the correct meaning of the center word.
 Second, dependence structure within the window could shed light on the function of the center word in the sentences, which helps interpreting its entity.
@@ -86,7 +84,7 @@ ii.\\
 The first limitation is that the length of context is limited by the length of window size.
 For example the \textbf{Test and County Cricket Board} does not get right label, because the length has exceeded the window size.\\
 \\
-The second limitation is that the model is too simplistic. The context is based solely on concatenating word vectors. The model can't decide which word in the context should it focus on. For example, \textbf{Grace Road} was not correctly classified in ``at Grace Road". The word ``at" is a very strong signal that the next word/phrases should be locations but the model fails to capture that. Currently the word ``at" has the same effect anywhere within the window. With a more sophisticated model like LSTM or GRU, we should be able to put emphasis on words that are more relevant to the entity. 
+The second limitation is that the model is too simplistic. The context is based solely on concatenating word vectors. The model can't decide which word in the context should it focus on. For example, \textbf{Grace Road} was not correctly classified in ``at Grace Road". The word ``at" is a very strong signal that the next word/phrases should be locations but the model fails to capture that. Currently the word ``at" has the same effect anywhere within the window. With a more sophisticated model like LSTM or GRU, we should be able to put emphasis on words that are more relevant to the entity.
 
 \end{enumerate}
 \clearpage
@@ -124,37 +122,29 @@ $$
 
 \item
 i.\\
-\textbf{Sijun's answer}\\
 The problem with cross entropy loss is that is maximize the softmax probability of the correct label instead of just classify the labels correctly. Consider a 2 token batch with 2 class, the labels are
 $$y^{1} = [1, 0] \ \  y^{2} = [0, 1]$$
 \textbf{Case 1}: $\hat{y}^{1} = [0.6, 0.4] \ \ \hat{y}^{2} = [0.4, 0.6]$. \\
 The model gets both labels correct. $J = -2\text{log} \ 0.6 = 0.44$\par
-\textbf{Case 2}: $\hat{y}^{1} = [0.99, 0.01] \ \ \hat{y}^{2} = [0.51, 0.49]$.\\ 
+\textbf{Case 2}: $\hat{y}^{1} = [0.99, 0.01] \ \ \hat{y}^{2} = [0.51, 0.49]$.\\
 The model gets only 1 label correct. $J = -\text{log} \ 0.99 -\text{log} \ 0.49 = 0.31$\par
 While case 2 has a smaller cross entropy loss, it only correctly classified one label and has a smaller $F_1$ score.\\
-\textbf{Jiajun's answer}\\
-Consider a dataset that most of (over $90\%$) the entity is person,
-if the model label all the entity as person the cross entropy error should be smaller.
-However, by doing this the $F_1$ score should drop, because the prediction is biased and recall value will drop.
 
 ii.\\
-\textbf{Sijun's answer}\\
-1. The $F_1$ score cannot be broken into token-level or batch-level terms and thus is impossible to do mini-batch optimization. It requires looking through the entire training set, which is unrealistic in terms of memory. \\
-2. There's no gradient of $F_1$ w.r.t. the parameters. Optimizing $F_1$ will be ver hard since we need to reply on some variant of gradient descent for optimization.\\
-\textbf{Jiajun's answer}\\
-Optimizing $F_1$ score requires looking through the entire training set. The cost and memory requirement is huge.
+1. The $F_1$ score cannot be broken into token-level or batch-level terms and thus is impossible to do mini-batch optimization.
+It requires looking through the entire training set, which is unrealistic in terms of memory. \\
+2. There's no gradient of $F_1$ w.r.t. the parameters.
+Optimizing $F_1$ will be ver hard since we need to reply on some variant of gradient descent for optimization.\\
 
 \item
 (code)
 
 \item
-\textbf{Sijun's answer}\\
-The padded 0-vectors are at the end of the sentence. When the model unroll to the padded 0-vectors, it will make predictions based solely on the past memory (current word input is all zeros). Regardless of what the model predicts, it will add to the loss function. Since the loss of these tokens are not zero, it will produce a gradient and affect the batch gradient. With masking, we neglect the loss terms of the padded 0-vectors. They no longer have any effect on the loss and thus no effect on the gradient.\\
-\textbf{Jiajun's answer}\\
-The padded label $y$ will be transform into a one-hot vector.
-When $y=0$, the corresponding one-hot vector is $[1, 0, 0, 0, 0]$.
-Therefore, the padded label will be considered as label $o$.
-The cross entropy loss is not always zero for the padded part.
+The padded 0-vectors are at the end of the sentence.
+When the model unroll to the padded 0-vectors, it will make predictions based solely on the past memory (current word input is all zeros).
+Regardless of what the model predicts, it will add to the loss function.
+Since the loss of these tokens (padded vectors) are not zero, it will produce a gradient and affect the batch gradient.
+With masking, we neglect the loss terms of the padded 0-vectors. They no longer have any effect on the loss and thus no effect on the gradient.\\
 
 \item
 (code)
