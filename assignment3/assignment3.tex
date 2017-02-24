@@ -39,14 +39,14 @@ Second, dependence structure within the window could shed light on the function 
 
 \item
 i.\\
-$e^{(t)}$ has dimension of $1 \times 2(w+1)D$\\
-$W$ has dimension of $2(w+1)D \times H$\\
+$e^{(t)}$ has dimension of $1 \times (2w+1)D$\\
+$W$ has dimension of $(2w+1)D \times H$\\
 $U$ has dimension of $H \times C$\\
 \\
 ii.\\
 $$
 \begin{aligned}
-& cost(ReLu) = \mathcal{O}(H) + \mathcal{O}(2(w+1)D \times H)\\
+& cost(ReLu) = \mathcal{O}(H) + \mathcal{O}((2w+1)D \times H)\\
 & cost(softmax) = \mathcal{O}(H \times C) + \mathcal{O}(C)\\
 & cost(CE) = \mathcal{O}(C)
 \end{aligned}
@@ -55,8 +55,8 @@ Given the sentences has length of $T$, the computation complexity is:
 $$
 \begin{aligned}
 cost
-& = T \times \mathcal{O}(\mathcal{O}(H) + \mathcal{O}(2(w+1)D \times H) + \mathcal{O}(H \times C) + \mathcal{O}(C) + \mathcal{O}(C))\\
-& \approx \mathcal{O}(2(w+1)D \times H \times T)\\
+& = T \times \mathcal{O}(\mathcal{O}(H) + \mathcal{O}((2w+1)D \times H) + \mathcal{O}(H \times C) + \mathcal{O}(C) + \mathcal{O}(C))\\
+& \approx \mathcal{O}((2w+1)D \times H \times T)\\
 & \approx \mathcal{O}(wDHT)
 \end{aligned}
 $$
@@ -100,9 +100,9 @@ V \times D + H \times H + D \times H + H + H \times C + C
 $$
 The number of window-based model parameters:
 $$
-V \times D + D \times H + H + H \times C + C
+V \times D + (2w+1)D \times H + H + H \times C + C
 $$
-Therefore, RNN has $HH$ more parameters than window-based model.\\
+Therefore, RNN has $(2wD - H)H$ more parameters than window-based model, assuming $2wD > H$\\
 
 ii.\\
 Cost for one time step:
@@ -115,26 +115,42 @@ $$
 $$
 Adding them up:
 $$
-\mathcal{O}(H \times H) + \mathcal{O}(D \times H) + \mathcal{O}(H) + \mathcal{O}(H \times C) + \mathcal{O}(C) + \mathcal{O}(C) \approx \mathcal{O}(H \times H) + \mathcal{O}(D \times H)
+\mathcal{O}(H \times H) + \mathcal{O}(D \times H) + \mathcal{O}(H) + \mathcal{O}(H \times C) + \mathcal{O}(C) + \mathcal{O}(C) \approx \mathcal{O}(H \times H + D \times H)
 $$
 Therefore the total cost for sentence of length $T$:
 $$
-cost = T(\mathcal{O}(H \times H) + \mathcal{O}(D \times H))
+cost =  \mathcal{O}((H \times H + D \times H)T)
 $$
 
 \item
 i.\\
+\textbf{Sijun's answer}\\
+The problem with cross entropy loss is that is maximize the softmax probability of the correct label instead of just classify the labels correctly. Consider a 2 token batch with 2 class, the labels are
+$$y^{1} = [1, 0] \ \  y^{2} = [0, 1]$$
+\textbf{Case 1}: $\hat{y}^{1} = [0.6, 0.4] \ \ \hat{y}^{2} = [0.4, 0.6]$. \\
+The model gets both labels correct. $J = -2\text{log} \ 0.6 = 0.44$\par
+\textbf{Case 2}: $\hat{y}^{1} = [0.99, 0.01] \ \ \hat{y}^{2} = [0.51, 0.49]$.\\ 
+The model gets only 1 label correct. $J = -\text{log} \ 0.99 -\text{log} \ 0.49 = 0.31$\par
+While case 2 has a smaller cross entropy loss, it only correctly classified one label and has a smaller $F_1$ score.\\
+\textbf{Jiajun's answer}\\
 Consider a dataset that most of (over $90\%$) the entity is person,
 if the model label all the entity as person the cross entropy error should be smaller.
 However, by doing this the $F_1$ score should drop, because the prediction is biased and recall value will drop.
 
 ii.\\
+\textbf{Sijun's answer}\\
+1. The $F_1$ score cannot be broken into token-level or batch-level terms and thus is impossible to do mini-batch optimization. It requires looking through the entire training set, which is unrealistic in terms of memory. \\
+2. There's no gradient of $F_1$ w.r.t. the parameters. Optimizing $F_1$ will be ver hard since we need to reply on some variant of gradient descent for optimization.\\
+\textbf{Jiajun's answer}\\
 Optimizing $F_1$ score requires looking through the entire training set. The cost and memory requirement is huge.
 
 \item
 (code)
 
 \item
+\textbf{Sijun's answer}\\
+The padded 0-vectors are at the end of the sentence. When the model unroll to the padded 0-vectors, it will make predictions based solely on the past memory (current word input is all zeros). Regardless of what the model predicts, it will add to the loss function. Since the loss of these tokens are not zero, it will produce a gradient and affect the batch gradient. With masking, we neglect the loss terms of the padded 0-vectors. They no longer have any effect on the loss and thus no effect on the gradient.\\
+\textbf{Jiajun's answer}\\
 The padded label $y$ will be transform into a one-hot vector.
 When $y=0$, the corresponding one-hot vector is $[1, 0, 0, 0, 0]$.
 Therefore, the padded label will be considered as label $o$.

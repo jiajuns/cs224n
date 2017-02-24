@@ -180,19 +180,13 @@ class RNNModel(NERModel):
             feed_dict: The feed dictionary mapping from placeholders to values.
         """
         ### YOUR CODE (~6-10 lines)
-        if labels_batch is None:
-            feed_dict = {
-                self.input_placeholder: inputs_batch,
-                self.mask_placeholder: mask_batch,
-                self.dropout_placeholder: dropout
-            }
-        elif labels_batch is not None:
-            feed_dict = {
-                self.input_placeholder: inputs_batch,
-                self.labels_placeholder: labels_batch,
-                self.mask_placeholder: mask_batch,
-                self.dropout_placeholder: dropout
-            }
+        feed_dict = {
+            self.input_placeholder: inputs_batch,
+            self.mask_placeholder: mask_batch,
+            self.dropout_placeholder: dropout
+        }
+        if labels_batch is not None:
+            feed_dict[self.labels_placeholder] = labels_batch
         ### END YOUR CODE
         return feed_dict
 
@@ -294,15 +288,13 @@ class RNNModel(NERModel):
         with tf.variable_scope("RNN"):
             for time_step in range(self.max_length):
                 ### YOUR CODE HERE (~6-10 lines)
-                if time_step == 0:
-                    o_t, h_t = cell(x[:, time_step, :], h)
-                    o_drop_t = tf.nn.dropout(o_t, dropout_rate)
-                    y_t = tf.matmul(o_drop_t, U) + b2
-                else:
+                if time_step != 0:
                     tf.get_variable_scope().reuse_variables()
-                    o_t, h_t = cell(x[:, time_step, :], h_t)
-                    o_drop_t = tf.nn.dropout(o_t, dropout_rate)
-                    y_t = tf.matmul(o_drop_t, U) + b2
+                    o_t, h_t = cell(x[:,time_step,:], h_t)
+                else:
+                    o_t, h_t = cell(x[:,time_step,:], h)
+                o_t_drop = tf.nn.dropout(o_t, dropout_rate)
+                y_t = tf.matmul(o_t_drop, U) + b2
                 preds.append(y_t)
                 ### END YOUR CODE
 
