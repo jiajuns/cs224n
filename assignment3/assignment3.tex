@@ -150,10 +150,29 @@ With masking, we neglect the loss terms of the padded 0-vectors. They no longer 
 (code)
 
 \item
-result:
+Entity level P/R/F1: 0.84/0.86/0.85\\
+The confusion matrix shows that the model has a very low false positive rate of misclassifying null class into an entity. Among all the entities,  ORG has the lowest accuracy.
+\begin{table}[h]
+	\centering
+	\caption{confusion matrix}
+	\begin{tabular}{|l|l|l|l|l|l|}
+	\hline
+	Acutal \textbackslash Predicted & PER     & ORG     & LOC     & MISC    & O        \\ \hline
+	PER   & 2958.00 & 30.00   & 83.00   & 16.00   & 62.00    \\ \hline
+	ORG   & 113.00  & 1676.00 & 108.00   & 88.00   & 107.00   \\ \hline
+	LOC   & 32.00   & 70.00  & 1946.00 & 19.00   & 27.00    \\ \hline
+	MISC  & 32.00   & 36.00   & 64.00   & 1042.00 & 94.00   \\ \hline
+	O     & 37.00   & 46.00   & 35.00   & 38.00   & 42603.00 \\ \hline
+	\end{tabular}
+\end{table}
 
 \item
-explanation:
+The first limitation is gradient vainishing issue. For a long sentence the gradient of previous word does not carry over to the end.
+In a situation that first few words can strongly indicate the label for word afterwards, the signal of first few words will not pass over.
+For example, Panamanian boxing legend Roberto "Hands of Stone" Duran climbs into the ring on Saturday in another age-defying attempt to sustain his long career.
+Duran is a person, this is strongly indicated by "boxing legend", however for RNN this signal fades too much when reaching "Duran".
+
+The second limitation is:
 
 \end{enumerate}
 \clearpage
