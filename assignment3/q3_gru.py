@@ -145,7 +145,9 @@ class SequencePredictor(Model):
         variables = [gv[1] for gv in grads_and_vars]
 
         if self.config.clip_gradients:
+            print("clipped")
             grads, _ = tf.clip_by_global_norm(grads, self.config.max_grad_norm)
+
         self.grad_norm = tf.global_norm(grads)
         train_op = optimizer.apply_gradients(zip(grads, variables))
         ### END YOUR CODE
