@@ -151,7 +151,7 @@ With masking, we neglect the loss terms of the padded 0-vectors. They no longer 
 
 \item
 Entity level P/R/F1: 0.84/0.86/0.85\\
-The confusion matrix shows that the model is very accurate in terms of classifying null class. Among all the entities,  ORG has the lowest precision and MISC has the lowest recall. 
+The confusion matrix shows that the model is very accurate in terms of classifying null class. Among all the entities,  ORG has the lowest precision and MISC has the lowest recall.
 \begin{table}[h]
 	\centering
 	\caption{confusion matrix}
@@ -221,12 +221,26 @@ But if $x=1$, $z_t = 0$ and hidden state $h_t = \tilde{h_t} = 0$.
 \end{figure}
 
 \item
-explanation:
+GRU model has exploding gradients.
+As shown in the figure above, the gradient suddenly shoots up to 8.
+While with gradient clipping, the gradient has been kept below 5.
+THe gradient clipping makes the model more stable.
 
 \item
-waiting for the GPU then we can train this
-F1 score
-
+Entity level P/R/F1: 0.86/0.86/0.86\\
+\begin{table}[h]
+	\centering
+	\caption{confusion matrix}
+	\begin{tabular}{|l|l|l|l|l|l|}
+	\hline
+	Acutal \textbackslash Predicted & PER     & ORG     & LOC     & MISC    & O        \\ \hline
+	PER   & 2951.00 & 52.00   & 49.00   & 9.00   & 88.00    \\ \hline
+	ORG   & 113.00  & 1718.00 & 58.00   & 77.00   & 126.00   \\ \hline
+	LOC   & 32.00   & 79.00  & 1896.00 & 31.00   & 57.00    \\ \hline
+	MISC  & 36.00   & 51.00   & 33.00   & 1046.00 & 102.00   \\ \hline
+	O     & 31.00   & 63.00   & 20.00   & 27.00   & 42618.00 \\ \hline
+	\end{tabular}
+\end{table}
 
 \end{enumerate}
 
