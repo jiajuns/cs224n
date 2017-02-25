@@ -65,7 +65,7 @@ $$
 \item
 i.\\
 Entity level P/R/F1: 0.82/0.84/0.83\\
-The confusion matrix shows that the model has a very low false positive rate of misclassifying null class into an entity. Among all the entities,  ORG has the lowest accuracy.
+The confusion matrix shows that the model is very accurate in terms of classifying null class. Among all the entities,  ORG has the lowest precision and the lowest recall. The most commonly-made mistake by the model is misclassifying MISC entities as null.
 \begin{table}[h]
 	\centering
 	\caption{confusion matrix}
@@ -100,7 +100,7 @@ The number of window-based model parameters:
 $$
 V \times D + (2w+1)D \times H + H + H \times C + C
 $$
-Therefore, RNN has $(2wD - H)H$ more parameters than window-based model, assuming $2wD > H$\\
+Therefore, RNN has $(H - 2wD)H$ more parameters than window-based model, assuming $H > 2wD$\\
 
 ii.\\
 Cost for one time step:
@@ -151,7 +151,7 @@ With masking, we neglect the loss terms of the padded 0-vectors. They no longer 
 
 \item
 Entity level P/R/F1: 0.84/0.86/0.85\\
-The confusion matrix shows that the model has a very low false positive rate of misclassifying null class into an entity. Among all the entities,  ORG has the lowest accuracy.
+The confusion matrix shows that the model is very accurate in terms of classifying null class. Among all the entities,  ORG has the lowest precision and MISC has the lowest recall. 
 \begin{table}[h]
 	\centering
 	\caption{confusion matrix}
@@ -167,13 +167,9 @@ The confusion matrix shows that the model has a very low false positive rate of 
 \end{table}
 
 \item
-The first limitation is gradient vainishing issue. For a long sentence the gradient of previous word does not carry over to the end.
-In a situation that first few words can strongly indicate the label for word afterwards, the signal of first few words will not pass over.
-For example, Panamanian boxing legend Roberto "Hands of Stone" Duran climbs into the ring on Saturday in another age-defying attempt to sustain his long career.
-Duran is a person, this is strongly indicated by "boxing legend", however for RNN this signal fades too much when reaching "Duran".
-
-The second limitation is:
-
+The first limitation is signals in hidden layer dissipates in long range. For example, the model predicted ``Duran" as MISC instead of PER in ``Panamanian boxing legend Roberto "Hands of Stone" Duran climbs into..." Duran is a PER and it is strongly indicated by "boxing legend", however for RNN the signal fades too much when reaching ``Duran". Instead, the model predicted ``Hands" and ``Stone" as PER, possibly due to the strong signal. By the time the model unrolls to ``Duran", the signal in hidden layer has already dissipated and masked by the mixed signal from ``Hands" and ``Stone". \par
+\vspace{5mm}
+The second limitation is the RNN is one-directional and only uses the words before the target word to predict the entity. For example, the model predicted ``Washington" in ``The 11th-seeded Washington fell short of reprising his Wimbledon miracle comeback..." as a LOC instead of a PER, which makes sense when you only look at the words before ``Washington". But if the model can unroll bi-directionally and take into account the words after the target word like ``fell short of" or ``his", it will have done a better job.
 \end{enumerate}
 \clearpage
 \section*{Problem 3:Grooving with GRUs}
