@@ -101,19 +101,28 @@ def pad_sequences(data, max_length):
 
     for sentence, labels in data:
         ### YOUR CODE HERE (~4-6 lines)
-        sentence_length = len(sentence)
-        pad_sentence = sentence[:]
-        pad_labels = labels[:]
-        mask = list(sentence_length * [True])
-        if sentence_length < max_length:
-            pad_sentence.extend((max_length - sentence_length) * [zero_vector])
-            pad_labels.extend((max_length - sentence_length) * [zero_label])
-            mask.extend((max_length - sentence_length) * [False])
+        if len(sentence) >= max_length:
+            new_sentence = sentence[:max_length]
+            new_labels = labels[:max_length]
+            mask = [True] * max_length
         else:
-            pad_sentence = pad_sentence[0:max_length]
-            pad_labels = pad_labels[0:max_length]
-            mask = mask[0:max_length]
-        ret.append(tuple([pad_sentence, pad_labels, mask]))
+            new_sentence = sentence + [zero_vector] * (max_length - len(sentence))
+            new_labels = labels + [zero_label] * (max_length - len(sentence))
+            mask = [True] * len(sentence) + [False] * (max_length - len(sentence))
+        ret.append((new_sentence, new_labels, mask))
+        # sentence_length = len(sentence)
+        # pad_sentence = sentence[:]
+        # pad_labels = labels[:]
+        # mask = list(sentence_length * [True])
+        # if sentence_length < max_length:
+        #     pad_sentence.extend((max_length - sentence_length) * [zero_vector])
+        #     pad_labels.extend((max_length - sentence_length) * [zero_label])
+        #     mask.extend((max_length - sentence_length) * [False])
+        # else:
+        #     pad_sentence = pad_sentence[0:max_length]
+        #     pad_labels = pad_labels[0:max_length]
+        #     mask = mask[0:max_length]
+        # ret.append(tuple([pad_sentence, pad_labels, mask]))
         ### END YOUR CODE ###
     return ret
 
@@ -151,10 +160,14 @@ class RNNModel(NERModel):
         (Don't change the variable names)
         """
         ### YOUR CODE HERE (~4-6 lines)
-        self.input_placeholder = tf.placeholder(tf.int32, (None, self.max_length, self.config.n_features), name='input_batch')
-        self.labels_placeholder = tf.placeholder(tf.int32, (None, self.max_length), name='input_label')
-        self.mask_placeholder = tf.placeholder(tf.bool, (None, self.max_length), name='mask')
-        self.dropout_placeholder = tf.placeholder(tf.float32, (None), name='dropout')
+        self.input_placeholder = tf.placeholder(tf.int32, shape=(None, self.max_length, self.config.n_features))
+        self.labels_placeholder = tf.placeholder(tf.int32, shape = (None, self.max_length))
+        self.mask_placeholder = tf.placeholder(tf.bool, shape = (None, self.max_length))
+        self.dropout_placeholder = tf.placeholder(tf.float32, shape=(None))
+        # self.input_placeholder = tf.placeholder(tf.int32, (None, self.max_length, self.config.n_features), name='input_batch')
+        # self.labels_placeholder = tf.placeholder(tf.int32, (None, self.max_length), name='input_label')
+        # self.mask_placeholder = tf.placeholder(tf.bool, (None, self.max_length), name='mask')
+        # self.dropout_placeholder = tf.placeholder(tf.float32, (None), name='dropout')
         ### END YOUR CODE
 
     def create_feed_dict(self, inputs_batch, mask_batch, labels_batch=None, dropout=1):
@@ -300,8 +313,9 @@ class RNNModel(NERModel):
 
         # Make sure to reshape @preds here.
         ### YOUR CODE HERE (~2-4 lines)
-        preds = tf.pack(preds, axis=1)
-        preds = tf.reshape(preds, (-1, self.max_length, self.config.n_classes))
+        preds = tf.reshape(tf.pack(preds, axis = 1), (-1, self.max_length, self.config.n_classes))
+        # preds = tf.pack(preds, axis=1)
+        # preds = tf.reshape(preds, (-1, self.max_length, self.config.n_classes))
         ### END YOUR CODE
 
         assert preds.get_shape().as_list() == [None, self.max_length, self.config.n_classes], "predictions are not of the right shape. Expected {}, got {}".format([None, self.max_length, self.config.n_classes], preds.get_shape().as_list())
