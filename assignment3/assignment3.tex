@@ -1,5 +1,5 @@
 \documentclass[10pt]{article}
-\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx}
+\usepackage{fullpage,enumitem,amsmath,amssymb,graphicx,subfig}
 \usepackage{tikz}
 \usepackage{array}
 \usepackage{verbatim}
@@ -176,13 +176,17 @@ The second limitation is the RNN is one-directional and only uses the words befo
 \begin{enumerate}[label=(\alph*)]
 \item
 i.\\
-$U_h = 1$, $W_h = 1$ and $b_h = 0$ will allow the RNN to replicate this behavior.\\
-
+$\boxed{U_h = 1, W_h = 1 \text{ and } b_h = 0}$\\
+To replicate the behavior, the model always needs to preserve the memory ($W_h = 1$) to not forget the state of 1. It also need to always take new input ($W_x = 1$) so that it can react to the new input of 1.\par
 ii.\\
-$U_z = 0$, $W_z = 1$, $U_h = 1$ and $W_h$ can be any value.\\
-When $x=0$, $z_t = 0$ and $\tilde{h_t} = 0$ thus the hidden state will always be $h_t = 0$.
-Whenever $x=1$, $z_t = 0$ and the hidden state will keep to be $h_t = h_{t-1} = 1$.
-
+$\boxed{U_z = 0, W_z = 1, U_h = 1 \text{ and } W_h \text{ can be any value.}}$\\
+Given $w_r = u_r = b_r = 0$, the reset gate $r_t$ will always be zero. $\tilde{h}_t$ will be solely dependent on input ($U_h = 1$) and have no memory, thus $W_h$ can be any number. The objective is then have the update gate perform as following
+$$z_t = \begin{cases}
+ 0, & x_t = 0 \text{ and } h_{t-1} = 0\\
+ 0, & x_t = 1 \text{ and } h_{t-1} = 0\\
+ 1, & h_{t-1} = 1\\
+\end{cases}$$
+We can achieve the above update gate behavior when $U_z=0$ and $W_z = 1$.
 \item
 i.\\
 It is impossible for RNN to have togging behavior.
@@ -190,41 +194,30 @@ $U_t$ has to be a positive number in order to let $h_t$ switch to $1$.
 Therefore for the second time when $x = 1$ it is impossible to let $h_t$ switch back to $0$.\\
 
 ii.\\
-$b_r = 1$, $U_z = -1$, $W_z = 1$, $U_h = 1$ and $W_h = -1$.
-When $x=0$, $z_t = 0$ and $\tilde{h_t} = 0$ thus the hidden state will always be $h_t = 0$.
-When $x=1$ for the first time, $z_t = 0$ but $\tilde{h_t} = 1$ thus the hidden state will switch to $h_t = 1$.
-If $h_t=1$ and $x=0$, $z_t = 1$ and hidden state $h_t = h_{t-1} = 1$.
-But if $x=1$, $z_t = 0$ and hidden state $h_t = \tilde{h_t} = 0$.
-
+$\boxed{b_r = 1, U_z = -1, W_z = 1, U_h = 1 \text{ and }W_h = -1}$\\
+When $x_t=0$ and $h_{t-1} = 0$, $z_t = 0$ and $\tilde{h_t} = 0$, thus the hidden state will always be $h_t = 0$.\\
+When $x_t=1$ and $h_{t-1} = 0$, $z_t = 0$ but $\tilde{h_t} = 1$, thus the hidden state will switch to $h_t = 1$.\\
+When $h_{t-1}=1$ and $x_t=0$, $z_t = 1$, thus hidden state $h_t = h_{t-1} = 1$.\\
+When $x_t=1$ and $h_{t-1} = 1$, $z_t = 0$, thus hidden state $h_t = \tilde{h}_t = 0$.\\
 \item
 (code)
 
 \item
-\begin{figure}[h]
-\center
-\includegraphics[scale=0.45]{q3-clip-gru.png}
+(i). The RNN model experiences vanishing gradient. Gradient Clipping does not help because it is not a solution to vanishing gradient, but exploding gradient.\\ 
+While the GRU model has noisy gradients but it is not exploding. The model had its gradient clipped a couple times when it suddenly shot up, but there's no evidence in the result showing that the gradient clipping helped.\\
+(ii). GRU performs better, as it was able to reach a much smaller minima compared with RNN. The reason is that GRU does not experience vanishing gradient like RNN so the error at a time step can provide feedback to words many steps away in the back propagation process. 
+ 
+\begin{figure}[ht]
+\centering
+    \subfloat{{\includegraphics[scale=0.37]{q3-clip-gru.png} }}
+    \qquad
+    \subfloat{{\includegraphics[scale=0.37]{q3-noclip-gru.png} }}
+    \qquad
+    \subfloat{{\includegraphics[scale=0.37]{q3-clip-rnn.png} }}
+    \qquad        
+    \subfloat{{\includegraphics[scale=0.37]{q3-noclip-rnn.png} }}
 \end{figure}
 
-\begin{figure}[h]
-\center
-\includegraphics[scale=0.45]{q3-noclip-gru.png}
-\end{figure}
-
-\begin{figure}[h]
-\center
-\includegraphics[scale=0.45]{q3-clip-rnn.png}
-\end{figure}
-
-\begin{figure}[h]
-\center
-\includegraphics[scale=0.45]{q3-noclip-rnn.png}
-\end{figure}
-
-\item
-GRU model has exploding gradients.
-As shown in the figure above, the gradient suddenly shoots up to 8.
-While with gradient clipping, the gradient has been kept below 5.
-THe gradient clipping makes the model more stable.
 
 \item
 Entity level P/R/F1: 0.86/0.86/0.86\\
