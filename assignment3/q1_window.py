@@ -47,7 +47,6 @@ class Config:
     batch_size = 2048
     n_epochs = 10
     lr = 0.001
-    conll_output = 'window_predictions.conll'
 
     def __init__(self, output_path=None):
         if output_path:
@@ -58,6 +57,7 @@ class Config:
         self.model_output = self.output_path + "model.weights"
         self.eval_output = self.output_path + "results.txt"
         self.log_output = self.output_path + "log"
+        self.conll_output = 'window_predictions.conll'
 
 
 def make_windowed_data(data, start, end, window_size = 1):
@@ -98,33 +98,15 @@ def make_windowed_data(data, start, end, window_size = 1):
     ### YOUR CODE HERE (5-20 lines)
         for i in xrange(len(sentence)):
             window = []
-            if i - window_size < 0: 
-                window += start 
+            if i - window_size < 0:
+                window += start
             windowStart = max(0, i - window_size)
             windowEnd = min(i + window_size + 1, len(sentence))
             for j in xrange(windowStart, windowEnd):
                 window += sentence[j]
-            if i + window_size > len(sentence) - 1: 
-                window += end 
+            if i + window_size > len(sentence) - 1:
+                window += end
             windowed_data.append((window, labels[i]))
-        # temp_windowed = list()
-        # sentence_size = len(sentence)
-        # for idx, label in enumerate(labels):
-        #     if idx < window_size:
-        #         if (idx + window_size + 1) <= (sentence_size):
-        #             sub_sentence = list(itertools.chain.from_iterable(sentence[:(idx + window_size + 1)]))
-        #             temp_windowed = start + sub_sentence
-        #         else:
-        #             sub_sentence = list(itertools.chain.from_iterable(sentence))
-        #             temp_windowed = start + sub_sentence + end
-        #     if idx >= window_size:
-        #         if (idx + window_size + 1) <= (sentence_size):
-        #             sub_sentence = list(itertools.chain.from_iterable(sentence[(idx-window_size):(idx + window_size + 1)]))
-        #             temp_windowed = sub_sentence
-        #         else:
-        #             sub_sentence = list(itertools.chain.from_iterable(sentence[(idx-window_size):]))
-        #             temp_windowed = sub_sentence + end
-        #     windowed_data.append(tuple([temp_windowed, label]))
     ### END YOUR CODE
     return windowed_data
 
@@ -188,7 +170,7 @@ class WindowModel(NERModel):
         if labels_batch is not None:
             feed_dict[self.labels_placeholder] = labels_batch
         if dropout is not None:
-            feed_dict[self.dropout_placeholder] = dropout   
+            feed_dict[self.dropout_placeholder] = dropout
         ### END YOUR CODE
         return feed_dict
 
@@ -356,7 +338,6 @@ def test_make_windowed_data():
     w_data = make_windowed_data(data, start=[5,0], end=[6,0], window_size=1)
 
     assert len(w_data) == sum(len(sentence) for sentence in sentences)
-    print w_data
     assert w_data == [
         ([5,0] + [1,1] + [2,0], 1,),
         ([1,1] + [2,0] + [3,3], 2,),

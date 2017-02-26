@@ -10,7 +10,7 @@
 {\Large CS224N Winter 2016 Homework [3]}
 
 \begin{tabular}{rl}
-SUNet ID: & [jiajuns, xxx, xxx] \\
+SUNet ID: & [jiajuns, sijunhe, ming1993] \\
 Name: & [Jiajun Sun, Sijun He, Mingxiang Chen] \\
 \end{tabular}
 \end{center}
@@ -199,14 +199,18 @@ When $x_t=0$ and $h_{t-1} = 0$, $z_t = 0$ and $\tilde{h_t} = 0$, thus the hidden
 When $x_t=1$ and $h_{t-1} = 0$, $z_t = 0$ but $\tilde{h_t} = 1$, thus the hidden state will switch to $h_t = 1$.\\
 When $h_{t-1}=1$ and $x_t=0$, $z_t = 1$, thus hidden state $h_t = h_{t-1} = 1$.\\
 When $x_t=1$ and $h_{t-1} = 1$, $z_t = 0$, thus hidden state $h_t = \tilde{h}_t = 0$.\\
+
 \item
 (code)
 
 \item
-(i). The RNN model experiences vanishing gradient. Gradient Clipping does not help because it is not a solution to vanishing gradient, but exploding gradient.\\ 
-While the GRU model has noisy gradients but it is not exploding. The model had its gradient clipped a couple times when it suddenly shot up, but there's no evidence in the result showing that the gradient clipping helped.\\
-(ii). GRU performs better, as it was able to reach a much smaller minima compared with RNN. The reason is that GRU does not experience vanishing gradient like RNN so the error at a time step can provide feedback to words many steps away in the back propagation process. 
- 
+(code)
+
+\item
+(i). The RNN model experiences vanishing gradient. Gradient Clipping does not help because it is not a solution to vanishing gradient, but exploding gradient.\\
+\\While the GRU model has noisy gradients but it is not exploding. The model had its gradient clipped a couple times when it suddenly shot up, but there's no evidence in the result showing that the gradient clipping helped.\\
+\\(ii). GRU performs better, as it was able to reach a much smaller minima compared with RNN. The reason is that GRU does not experience vanishing gradient like RNN so the error at a time step can provide feedback to words many steps away in the back propagation process.
+
 \begin{figure}[ht]
 \centering
     \subfloat{{\includegraphics[scale=0.37]{q3-clip-gru.png} }}
@@ -214,7 +218,7 @@ While the GRU model has noisy gradients but it is not exploding. The model had i
     \subfloat{{\includegraphics[scale=0.37]{q3-noclip-gru.png} }}
     \qquad
     \subfloat{{\includegraphics[scale=0.37]{q3-clip-rnn.png} }}
-    \qquad        
+    \qquad
     \subfloat{{\includegraphics[scale=0.37]{q3-noclip-rnn.png} }}
 \end{figure}
 
